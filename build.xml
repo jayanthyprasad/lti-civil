@@ -27,7 +27,7 @@
 	-->	
 
 	<!-- needed for compiling QTJ implementation (all platforms, although it would only work under Mac OS X or possibly Windows with QTJ installed): -->
-	<property name="quicktime.jar" location="/home/andrew/Downloads/QTJava.zip" /> 
+	<property name="quicktime.jar" location="lib/QTJava.zip" /> 
 
 	<target name="all" depends="clean,javac,javadoc,jar" />
 
@@ -37,23 +37,23 @@
 		<delete dir="${jar.out}"/>
 	</target>
 
-	<target name="javadoc">
-		<javadoc destdir="${javadoc.out}" packagenames="*" overview="${src}/overview.html" verbose="no">
-			<arg value="-quiet"/>
-		    <fileset dir="${src}" includes="**/*.java"/>
-		    <fileset dir="src.swt" includes="**/*.java"/>
-			<fileset dir="src.utils" includes="**/*.java"/>
-			<fileset dir="src.swtutils" includes="**/*.java"/>
-
-			<classpath location="${javac.out}" />
-			<classpath>
-				<pathelement path="lib/swt-M20060921-0945-win32-win32-x86/swt.jar" />
-				<pathelement path="${quicktime.jar}" />
-				<!--pathelement path="${DevLibs}/JMF-2.1.1e/lib/jmf.jar" /-->
-			</classpath>
-		</javadoc>
-	</target>
-
+    <target name="javadoc">
+        <javadoc destdir="${javadoc.out}" packagenames="*" overview="${src}/overview.html" verbose="no">
+            <arg value="-quiet"/>
+            <fileset dir="${src}" includes="**/*.java"/>
+            <fileset dir="src.swt" includes="**/*.java"/>
+            <fileset dir="src.utils" includes="**/*.java"/>
+            <fileset dir="src.swtutils" includes="**/*.java"/>
+            <fileset dir="src.qtstubs" includes="**/*.java"/>
+            
+            <classpath location="${javac.out}" />
+            <classpath>
+                <pathelement path="lib/swt-M20060921-0945-win32-win32-x86/swt.jar" />
+                <!--pathelement path="${DevLibs}/JMF-2.1.1e/lib/jmf.jar" /-->
+            </classpath>
+        </javadoc>
+    </target>
+    
 	<!-- use 1.5 -->
 	<target name="javac">
 		<mkdir dir="${javac.out}" />
@@ -64,10 +64,11 @@
 			<src path="${src}"/>
 			<src path="src.utils"/>
 			<src path="src.swt"/>
-			<src path="src.swtutils"/>
-			<classpath>
+            <src path="src.swtutils"/>
+            <src path="src.qtstubs"/>
+            
+            <classpath>
 				<pathelement path="lib/swt-M20060921-0945-win32-win32-x86/swt.jar" />
-				<pathelement path="${quicktime.jar}" />
 				<!--pathelement path="${DevLibs}/JMF-2.1.1e/lib/jmf.jar" /-->
 			</classpath>
 		</javac>
@@ -84,7 +85,7 @@
 		<!-- full Jar with everything -->
 		<jar jarfile="${jar.out}/lti-civil.jar">
 			<fileset dir="${javac.out}">
-
+                <exclude name="quicktime/**"/>
 			</fileset>
 			<fileset dir="bin/" >
 			</fileset>

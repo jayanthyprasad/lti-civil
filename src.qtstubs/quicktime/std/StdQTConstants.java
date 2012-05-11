@@ -10,5 +10,7 @@ public class StdQTConstants
 	public static final int seqGrabPlayDuringRecord = 0;
 	public static final int seqGrabDontMakeMovie = 0;
 	public static final int kComponentVideoCodecType = 0;
+  public static int codecLowQuality;
+  public static int codecNormalQuality;
 	
 }

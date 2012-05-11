@@ -13,4 +13,19 @@ public class SequenceGrabber
 	public void setDataOutput(Object o, int i) {}
 	public void setGWorld(QDGraphics g, Object o) {}
 	public void update(Object o) {}
+  public void stop()
+  {
+    // TODO Auto-generated method stub
+    
+  }
+  public void disposeQTObject()
+  {
+    // TODO Auto-generated method stub
+    
+  }
+  public void setDataProc(SGDataProc myDataProc)
+  {
+    // TODO Auto-generated method stub
+    
+  }
 }

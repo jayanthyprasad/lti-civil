@@ -1,0 +1,503 @@
+<project name="civil" default="all" basedir=".">
+
+	<property name="project.name" value="civil" />
+	<property name="src" location="src" />
+	<property name="dist" location="build/dist/lti-civil" />
+	<property name="dist-zip" location="build/dist/zip" />
+
+	<property name="javac.out" location="build/classes" />
+	<property name="javadoc.out" location="build/doc" />
+	<property name="jar.out" location="build/jars" />
+
+	<property name="cpp.out" location="build/cpp" />
+	<property name="cpp.linux.x86.out" location="build/cpp.linux.x86" />
+	<property name="cpp.linux.amd64.out" location="build/cpp.linux.amd64" />
+	<property name="cpp.macos.ppc.out" location="build/cpp.macos.ppc" />
+
+	<!-- needed for building DLL on Windows: -->
+	<property name="directx.sdk" location="C:\\Program Files\\Microsoft DirectX 9.0 SDK (February 2005)" />	<!-- Tailor to your system -->
+	<property name="directshow.sdk" location="${directx.sdk}\\Extras\\DirectShow" />
+	<property name="VC7.home" location="C:/Program Files/Microsoft Visual Studio 10.0/VC" /> <!-- Tailor to your system -->
+
+	<!-- Tailor to your system -->
+	<!-- needed for building DLL/so on Windows/Linux: -->
+	<property name="java.sdk" location="/usr/lib/jvm/java-6-openjdk" />
+	<!--
+	<property name="java.sdk" location="C:\\Program Files\\Java\\jdk1.6.0_20" />
+	-->	
+
+	<!-- needed for compiling QTJ implementation (all platforms, although it would only work under Mac OS X or possibly Windows with QTJ installed): -->
+	<property name="quicktime.jar" location="/home/andrew/Downloads/QTJava.zip" /> 
+
+	<target name="all" depends="clean,javac,javadoc,jar" />
+
+	<target name="clean">
+		<delete dir="${javac.out}"/>
+
+		<delete dir="${jar.out}"/>
+	</target>
+
+	<target name="javadoc">
+		<javadoc destdir="${javadoc.out}" packagenames="*" overview="${src}/overview.html" verbose="no">
+			<arg value="-quiet"/>
+		    <fileset dir="${src}" includes="**/*.java"/>
+		    <fileset dir="src.swt" includes="**/*.java"/>
+			<fileset dir="src.utils" includes="**/*.java"/>
+			<fileset dir="src.swtutils" includes="**/*.java"/>
+
+			<classpath location="${javac.out}" />
+			<classpath>
+				<pathelement path="lib/swt-M20060921-0945-win32-win32-x86/swt.jar" />
+				<pathelement path="${quicktime.jar}" />
+				<!--pathelement path="${DevLibs}/JMF-2.1.1e/lib/jmf.jar" /-->
+			</classpath>
+		</javadoc>
+	</target>
+
+	<!-- use 1.5 -->
+	<target name="javac">
+		<mkdir dir="${javac.out}" />
+
+		<javac debug="true" optimize="true" destdir="${javac.out}">
+			<compilerarg line="-source 1.5" />
+			<compilerarg line="-target 1.5" />
+			<src path="${src}"/>
+			<src path="src.utils"/>
+			<src path="src.swt"/>
+			<src path="src.swtutils"/>
+			<classpath>
+				<pathelement path="lib/swt-M20060921-0945-win32-win32-x86/swt.jar" />
+				<pathelement path="${quicktime.jar}" />
+				<!--pathelement path="${DevLibs}/JMF-2.1.1e/lib/jmf.jar" /-->
+			</classpath>
+		</javac>
+
+		<!-- copy resources: -->
+		<mkdir dir="${javac.out}/com/lti/swtutils/image/resources"/>
+		<copy todir="${javac.out}/com/lti/swtutils/image/resources">
+			<fileset dir="src.swtutils/com/lti/swtutils/image/resources" includes="*.png"/>
+		</copy>
+	</target>
+
+	<target name="jar">
+		<mkdir dir="${jar.out}" />
+		<!-- full Jar with everything -->
+		<jar jarfile="${jar.out}/lti-civil.jar">
+			<fileset dir="${javac.out}">
+
+			</fileset>
+			<fileset dir="bin/" >
+			</fileset>
+		</jar>
+		<!-- excludes LTI utils, LTI swtutils, and hacked log4j.  Useful for projects which are already using LTI utils and LTI swtutils -->
+		<jar jarfile="${jar.out}/lti-civil-noutils.jar">
+			<fileset dir="${javac.out}">
+				<exclude name="com/lti/utils/**"/>
+				<exclude name="com/lti/swtutils/**"/>
+				<exclude name="org/**"/>
+			</fileset>
+			<fileset dir="bin/" >
+		    </fileset>
+		</jar>
+		<!-- excludes SWT capture control, LTI swtutils, and hacked log4j.  Useful for FMJ -->
+		<jar jarfile="${jar.out}/lti-civil-no_s_w_t.jar"> <!-- Mac OS X thinks SWT is active if swt is in the classpath at all as a string. -->
+			<fileset dir="${javac.out}">
+				<exclude name="com/lti/swtutils/**"/>
+				<exclude name="org/**"/>
+				<exclude name="com/lti/civil/swt/**"/>
+			</fileset>
+			<fileset dir="bin/" >
+			</fileset>
+		</jar>
+	</target>
+
+
+
+	<target name="timestamp">
+		<tstamp />
+		<echo message="build=${DSTAMP}-${TSTAMP}"/>
+	</target>
+
+	<target name="dist" depends="timestamp,clean,javac,javadoc,jar">
+
+		<mkdir dir="${dist}/.." />
+		<mkdir dir="${dist}" />
+		<copy todir="${dist}" file="build/jars/lti-civil.jar"/>
+		<copy todir="${dist}" file="build/jars/lti-civil-noutils.jar"/>
+		<copy todir="${dist}" file="build/jars/lti-civil-no_s_w_t.jar"/> <!-- Mac OS X thinks SWT is active if swt is in the classpath at all as a string. -->
+
+		<copy todir="${dist}" file="README"/>
+		<copy todir="${dist}" file="LICENSE"/>
+
+		<mkdir dir="${dist}/src"/>
+		<copy todir="${dist}/src">
+			<fileset dir="${src}" excludes="**/CVS"/>
+		</copy>
+
+		<mkdir dir="${dist}/src.utils"/>
+		<copy todir="${dist}/src.utils">
+			<fileset dir="src.utils" excludes="**/CVS"/>
+		</copy>
+
+		<mkdir dir="${dist}/src.swt"/>
+		<copy todir="${dist}/src.swt">
+			<fileset dir="src.swt" excludes="**/CVS"/>
+		</copy>
+
+		<mkdir dir="${dist}/src.swtutils"/>
+		<copy todir="${dist}/src.swtutils">
+			<fileset dir="src.swtutils" excludes="**/CVS"/>
+		</copy>
+
+		<mkdir dir="${dist}/native"/>
+		<copy todir="${dist}/native">
+			<fileset dir="native" excludes="**/CVS"/>
+		</copy>
+
+		<copy todir="${dist}" file="build.xml"/>
+		<copy todir="${dist}" file="version-history.txt"/>
+
+		<mkdir dir="${dist}/native" />
+		<mkdir dir="${dist}/native/linux-amd64" />
+		<mkdir dir="${dist}/native/linux-x86" />
+		<mkdir dir="${dist}/native/windows-x86" />
+		<mkdir dir="${dist}/native/macosx-universal" />
+		<copy todir="${dist}/native/linux-amd64" file="bin/native/amd64/linux/libcivil.so"/>
+		<copy todir="${dist}/native/linux-x86" file="bin/native/x86/linux/libcivil.so"/>
+		<copy todir="${dist}/native/windows-x86" file="bin/native/x86/windows/civil.dll"/>
+		<!-- no native mac library since it uses quicktime -->
+
+		<!-- SWT -->
+
+		<mkdir dir="${dist}/lib"/>
+		<copy todir="${dist}/lib">
+			<fileset dir="lib" excludes="**/CVS"/>
+		</copy>
+
+		<!--copy todir="${dist}/native/windows-x86" file="lib/swt-M20060921-0945-win32-win32-x86/swt.jar"/>
+		<copy todir="${dist}/native/windows-x86">
+			<fileset dir="lib/swt-M20060921-0945-win32-win32-x86" includes="*.dll"/>
+			<fileset dir="lib/swt-M20060921-0945-win32-win32-x86" includes="*.manifest"/>
+		</copy>
+		<copy todir="${dist}/native/linux-amd64" file="lib/swt-M20060921-0945-gtk-linux-x86_64/swt.jar"/>
+		<copy todir="${dist}/native/linux-amd64">
+			<fileset dir="lib/swt-M20060921-0945-gtk-linux-x86_64" includes="*.so">
+			</fileset>
+		</copy>
+		<copy todir="${dist}/native/linux-x86" file="lib/swt-M20060921-0945-gtk-linux-x86/swt.jar"/>
+		<copy todir="${dist}/native/linux-x86">
+			<fileset dir="lib/swt-M20060921-0945-gtk-linux-x86" includes="*.so">
+			</fileset>
+		</copy>
+		<copy todir="${dist}/native/macosx-universal" file="lib/swt-M20060921-0945-carbon-macosx/swt.jar"/>
+		<copy todir="${dist}/native/macosx-universal">
+			<fileset dir="lib/swt-M20060921-0945-carbon-macosx" includes="*.jnilib"/>
+
+		</copy-->
+
+		<!-- sh/batch files -->
+
+		<copy tofile="${dist}/capturecontrol-linux-amd64.sh" file="sh/linux/amd64/capturecontrol.sh" />
+		<copy tofile="${dist}/capturecontrol_swt-linux-amd64.sh" file="sh/linux/amd64/capturecontrol_swt.sh" />
+		<copy tofile="${dist}/webcam-linux-amd64.sh" file="sh/linux/amd64/webcam.sh" />
+
+		<copy tofile="${dist}/capturecontrol-linux-x86.sh" file="sh/linux/x86/capturecontrol.sh" />
+		<copy tofile="${dist}/capturecontrol_swt-linux-x86.sh" file="sh/linux/x86/capturecontrol_swt.sh" />
+		<copy tofile="${dist}/webcam-linux-x86.sh" file="sh/linux/x86/webcam.sh" />
+
+		<copy tofile="${dist}/capturecontrol.bat" file="sh/windows/x86/capturecontrol.bat" />
+		<copy tofile="${dist}/capturecontrol_swt.bat" file="sh/windows/x86/capturecontrol_swt.bat" />
+		<copy tofile="${dist}/webcam.bat" file="sh/windows/x86/webcam.bat" />
+
+		<copy tofile="${dist}/capturecontrol-macosx-universal.sh" file="sh/macosx/universal/capturecontrol.sh" />
+		<copy tofile="${dist}/capturecontrol_swt-macosx-universal.sh" file="sh/macosx/universal/capturecontrol_swt.sh" />
+		<copy tofile="${dist}/webcam-macosx-universal.sh" file="sh/macosx/universal/webcam.sh" />
+
+
+
+		<chmod perm="ugo+x">
+			<fileset dir="${dist}" includes="*.sh" />
+		</chmod>
+
+		<mkdir dir="${dist}/doc"/>
+		<copy todir="${dist}/doc">
+			<fileset dir="build/doc"/>
+		</copy>
+
+		<!-- zip/tar: -->
+
+		<delete dir="${dist-zip}" />
+		<mkdir dir="${dist-zip}" />
+
+		<zip zipfile="${dist-zip}/lti-civil-${DSTAMP}-${TSTAMP}.zip">
+     		<zipfileset dir="${dist}">
+       		</zipfileset>
+		</zip>
+
+		<tar longfile="gnu" destfile="${dist-zip}/lti-civil-${DSTAMP}-${TSTAMP}.tar.gz" compression="gzip">
+ 			  <tarfileset dir="${dist}/.." mode="755">
+ 			    <include name="lti-civil/*.sh"/>
+ 			  </tarfileset>
+			  <tarfileset dir="${dist}/..">
+ 			    <include name="lti-civil/**"/>
+ 			    <exclude name="lti-civil/*.sh"/>
+ 			  </tarfileset>
+		</tar>
+
+	</target>
+
+	<!-- requires commons-net.jar -->
+	<target name="sf-upload" description="upload zipped build to sourcforge">
+		  <ftp server="upload.sourceforge.net"
+		       remotedir="incoming"
+		       userid="anonymous"
+		       password=""
+		       depends="no"
+		  	   binary="yes">
+		    <fileset dir="${dist-zip}"/>
+		  </ftp>
+	</target>
+
+	<!-- handy task for kenlars99, not relevant for general builds -->
+	<target name="kenlars99-copy-to-other-projects">
+		<!-- DevLibsMin: -->
+		<copy todir="${DevLibs}/lti-civil" file="build/jars/lti-civil-noutils.jar"/>
+		<copy todir="${DevLibs}/lti-civil/native/linux-amd64" file="bin/native/amd64/linux/libcivil.so"/>
+		<copy todir="${DevLibs}/lti-civil/native/linux-x86" file="bin/native/x86/linux/libcivil.so"/>
+		<copy todir="${DevLibs}/lti-civil/native/windows-x86" file="bin/native/x86/windows/civil.dll"/>
+
+		<!-- FMJ: -->
+		<copy todir="${LTIDev}/fmj/lib" file="build/jars/lti-civil-no_s_w_t.jar"/>
+		<copy todir="${LTIDev}/fmj/nativelib/linux-amd64" file="bin/native/amd64/linux/libcivil.so"/>
+		<copy todir="${LTIDev}/fmj/nativelib/linux-x86" file="bin/native/x86/linux/libcivil.so"/>
+		<copy todir="${LTIDev}/fmj/nativelib/windows-x86" file="bin/native/x86/windows/civil.dll"/>
+
+	</target>
+
+
+	<target name="javah" depends="javac">
+		<exec dir="." executable="javah" failonerror="true">
+			<arg line="-d native/src/common -classpath "/>
+			<arg path="${javac.out}"/>
+			<arg line="com.lti.civil.impl.jni.NativeCaptureSystem com.lti.civil.impl.jni.NativeCaptureSystemFactory com.lti.civil.impl.jni.NativeCaptureStream" />
+		</exec>
+	</target>
+
+	<!-- directshow dll -->
+	<target name="compile-dll">
+			<mkdir dir="${cpp.out}" />
+			<exec dir="${cpp.out}" executable="clexec.bat" failonerror="true" >
+				<arg line="/LD" />
+				<arg line="/GX" />
+				<arg line="/O2" />
+				<arg line="/ML" />
+				<arg line="/EHsc" />
+				<arg line="/o ${project.name}.dll" />
+				<arg line="/I "/><arg path="${java.sdk}/include" />
+				<arg line="/I "/><arg path="${java.sdk}/include/win32" />
+				<arg line="/I "/><arg path="${directshow.sdk}/include" />
+				<arg line="/I "/><arg path="${directx.sdk}/include" />
+				<arg line="-I "/><arg path="native/src/common" />
+				<arg path="native/src/common/civil.cpp" />
+				<arg path="native/src/common/JNICaptureObserver.cpp" />
+				<arg path="native/src/common/rgb-converter.cpp" />
+				<arg path="native/src/common/yuv_convert.cpp" />
+				<arg path="native/src/directshow/DSCaptureSystem.cpp" />
+				<arg path="native/src/directshow/DSCaptureStream.cpp" />
+				<arg path="native/src/directshow/DSCaptureSystemFactory.cpp" />
+
+				<arg path="${directshow.sdk}/Lib/x86/quartz.lib" />
+				<arg path="${directshow.sdk}/Lib/x86/strmiids.lib" />
+				<arg line="ole32.lib" />
+				<arg line="user32.lib" />
+				<arg line="oleaut32.lib" />
+				<!--<arg path="${VC7.home}/atlmfc/lib/nafxcw.lib" /> -->
+				<!--<arg path="${VC7.home}/lib/libcmt.lib" /> -->
+
+				<!--<arg path="${VC7.home}/atlmfc/lib/mfcs71.lib" />
+				<arg path="${VC7.home}/atlmfc/lib/atl.lib" />
+				<arg path="${VC7.home}/atlmfc/lib/atls.lib" /> -->
+				<!--<arg path="${VC7.home}/lib/libcpmtd.lib" /> -->
+
+			</exec>
+			<copy file="${cpp.out}/${project.name}.dll" todir="bin/native/x86/windows"/>
+		</target>
+
+	<target name="compile-test-dll">
+		<mkdir dir="${cpp.out}" />
+		<exec dir="${cpp.out}" executable="cl" failonerror="true">
+			<arg line="/LD" />
+			<arg line="/GX" />
+			<arg line="/o ${project.name}.dll" />
+			<arg line="/I "/><arg path="${java.sdk}/include" />
+			<arg line="/I "/><arg path="${java.sdk}/include/win32" />
+			<arg line="-I "/><arg path="native/src/common" />
+			<arg path="native/src/common/civil.cpp" />
+			<arg path="native/src/common/JNICaptureObserver.cpp" />
+			<arg path="native/src/common/rgb-converter.cpp" />
+			<arg path="native/src/common/yuv_convert.cpp" />
+			<arg path="native/src/test/CaptureSystemImpl.cpp" />
+			<arg path="native/src/test/CaptureStreamImpl.cpp" />
+			<arg path="native/src/test/CaptureSystemFactoryImpl.cpp" />
+		</exec>
+		<copy file="${cpp.out}/${project.name}.dll" todir="bin/native/x86/windows"/>
+	</target>
+	<target name="compile-so-x86">
+		<mkdir dir="${cpp.linux.x86.out}" />
+		<exec dir="${cpp.linux.x86.out}" executable="gcc" failonerror="true">
+			<arg line="-shared" />
+			<arg line="-DLINUX" />
+			<arg line="-o lib${project.name}.so" />
+			<arg line="-I ${java.sdk}/include" />
+			<arg line="-I ${java.sdk}/include/linux" />
+			<arg line="-I "/><arg path="native/src/common" />
+			<arg line="-I "/><arg path="native/src/libfg" />
+			<arg line="-I "/><arg path="native/src/camerav4l2/camerav4l2" />
+			<arg line="-I "/><arg path="native/src/video4linux" />
+			<arg path="native/src/common/civil.cpp" />
+			<arg path="native/src/common/JNICaptureObserver.cpp" />
+			<arg path="native/src/common/rgb-converter.cpp" />
+			<arg path="native/src/common/yuv_convert.cpp" />
+			<arg path="native/src/video4linux/PThreadStreamThrottle.cpp" />
+			<arg path="native/src/libfg/yuv2rgb.c" />
+
+			<!-- V4L: -->
+			<!--
+			<arg path="native/src/video4linux/V4LCaptureSystem.cpp" />
+			<arg path="native/src/video4linux/V4LCaptureStream.cpp" />
+			<arg path="native/src/video4linux/V4LCaptureSystemFactory.cpp" />
+			<arg path="native/src/libfg/capture.c" />
+			<arg path="native/src/libfg/frame.c" /> 
+			-->
+
+			<!-- V4L2: -->
+			<arg path="native/src/video4linux2/V4L2CaptureSystem.cpp" />
+			<arg path="native/src/video4linux2/V4L2CaptureStream.cpp" />
+			<arg path="native/src/video4linux2/V4L2CaptureSystemFactory.cpp" />
+			<arg path="native/src/camerav4l2/camerav4l2/v4l2capture.c" />
+			<!--
+			-->
+			<arg line="-lstdc++" />
+			<arg line="-lpthread" />
+
+		</exec>
+		<copy file="${cpp.linux.x86.out}/lib${project.name}.so" todir="bin/native/x86/linux"/>
+	</target>
+	<target name="compile-test-so-x86">
+		<mkdir dir="${cpp.linux.x86.out}" />
+		<exec dir="${cpp.linux.x86.out}" executable="gcc" failonerror="true">
+			<arg line="-shared" />
+			<arg line="-DLINUX" />
+			<arg line="-o lib${project.name}.so" />
+			<arg line="-I ${java.sdk}/include" />
+			<arg line="-I ${java.sdk}/include/linux" />
+			<arg line="-I "/><arg path="native/src/common" />
+			<arg path="native/src/common/civil.cpp" />
+			<arg path="native/src/common/JNICaptureObserver.cpp" />
+			<arg path="native/src/common/rgb-converter.cpp" />
+			<arg path="native/src/common/yuv_convert.cpp" />
+			<arg path="native/src/test/CaptureSystemImpl.cpp" />
+			<arg path="native/src/test/CaptureStreamImpl.cpp" />
+			<arg path="native/src/test/CaptureSystemFactoryImpl.cpp" />
+			<arg line="-lstdc++" />
+			<arg line="-lpthread" />
+		</exec>
+		<copy file="${cpp.linux.x86.out}/lib${project.name}.so" todir="bin/native/x86/linux"/>
+	</target>
+	<target name="compile-so-amd64">
+		<mkdir dir="${cpp.linux.amd64.out}" />
+
+		<!--exec dir="${cpp.linux.amd64.out}" executable="ln" failonerror="true">
+			<arg line="-s" />
+			<arg line="-f" />
+			<arg value="`g++ -print-file-name=libstdc++.a`" />
+		</exec-->
+		<exec dir="${cpp.linux.amd64.out}" executable="gcc" failonerror="true">
+			<arg line="-shared" />
+			<arg line="-DLINUX" />
+			<arg line="-fPIC" />
+			<arg line="-g3 -Wall" />
+			<arg line="-o lib${project.name}.so" />
+			<arg line="-I ${java.sdk}/include" />
+			<arg line="-I ${java.sdk}/include/linux" />
+			<arg line="-I "/><arg path="native/src/common" />
+			<arg line="-I "/><arg path="native/src/libfg" />
+			<arg line="-I "/><arg path="native/src/camerav4l2/camerav4l2" />
+			<arg line="-I "/><arg path="native/src/video4linux" />
+			<arg path="native/src/common/civil.cpp" />
+			<arg path="native/src/common/JNICaptureObserver.cpp" />
+			<arg path="native/src/common/rgb-converter.cpp" />
+			<arg path="native/src/common/yuv_convert.cpp" />
+			<arg path="native/src/video4linux/PThreadStreamThrottle.cpp" />
+			<arg path="native/src/libfg/yuv2rgb.c" />
+
+			<!-- V4L: -->
+			<!--
+            <arg path="native/src/video4linux/V4LCaptureSystem.cpp" />
+			<arg path="native/src/video4linux/V4LCaptureStream.cpp" />
+			<arg path="native/src/video4linux/V4LCaptureSystemFactory.cpp" />
+			<arg path="native/src/libfg/capture.c" />
+			<arg path="native/src/libfg/frame.c" />
+            -->
+
+			<!-- V4L2: -->
+            <!--
+            -->
+			<arg path="native/src/video4linux2/V4L2CaptureSystem.cpp" />
+			<arg path="native/src/video4linux2/V4L2CaptureStream.cpp" />
+			<arg path="native/src/video4linux2/V4L2CaptureSystemFactory.cpp" />
+			<arg path="native/src/camerav4l2/camerav4l2/v4l2capture.c" />
+
+			<!--arg line="-L."/-->
+			<arg line="-lstdc++" />
+			<arg line="-lpthread" />
+
+		</exec>
+		<copy file="${cpp.linux.amd64.out}/lib${project.name}.so" todir="bin/native/amd64/linux"/>
+	</target>
+	<target name="compile-test-so-amd64">
+		<mkdir dir="${cpp.linux.amd64.out}" />
+		<exec dir="${cpp.linux.amd64.out}" executable="gcc" failonerror="true">
+			<arg line="-shared" />
+			<arg line="-DLINUX" />
+			<arg line="-fPIC" />
+			<arg line="-o lib${project.name}.so" />
+			<arg line="-I ${java.sdk}/include" />
+			<arg line="-I ${java.sdk}/include/linux" />
+			<arg line="-I "/><arg path="native/src/common" />
+			<arg path="native/src/common/civil.cpp" />
+			<arg path="native/src/common/JNICaptureObserver.cpp" />
+			<arg path="native/src/common/rgb-converter.cpp" />
+			<arg path="native/src/common/yuv_convert.cpp" />
+			<arg path="native/src/test/CaptureSystemImpl.cpp" />
+			<arg path="native/src/test/CaptureStreamImpl.cpp" />
+			<arg path="native/src/test/CaptureSystemFactoryImpl.cpp" />
+
+
+			<arg line="-lstdc++" />
+			<arg line="-lpthread" />
+
+		</exec>
+		<copy file="${cpp.linux.amd64.out}/lib${project.name}.so" todir="bin/native/amd64/linux"/>
+	</target>
+	<target name="compile-test-jnilib-ppc">
+		<mkdir dir="${cpp.macos.ppc.out}" />
+		<exec dir="${cpp.macos.ppc.out}" executable="gcc" failonerror="true">
+			<arg line="-bundle" />
+			<arg line="-DMACOS" />
+			<arg line="-o lib${project.name}.jnilib" />
+			<arg line="-I /System/Library/Frameworks/JavaVM.framework/Versions/1.4.2/Headers" />
+			<arg line="-I "/><arg path="native/src/common" />
+			<arg path="native/src/common/civil.cpp" />
+			<arg path="native/src/common/JNICaptureObserver.cpp" />
+			<arg path="native/src/common/rgb-converter.cpp" />
+			<arg path="native/src/common/yuv_convert.cpp" />
+			<arg path="native/src/test/CaptureSystemImpl.cpp" />
+			<arg path="native/src/test/CaptureStreamImpl.cpp" />
+			<arg path="native/src/test/CaptureSystemFactoryImpl.cpp" />
+			<arg line="-lstdc++" />
+
+		</exec>
+		<copy file="${cpp.macos.ppc.out}/lib${project.name}.jnilib" todir="bin/native/macos/ppc"/>
+	</target>
+</project>

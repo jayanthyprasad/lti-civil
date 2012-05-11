@@ -1,0 +1,121 @@
+CIVIL stands for Capturing Images from Video Library, a simplified Java library
+to capture images from a camera such as a QuickCam or WebCam.
+
+The goal of this library is to provide a simple image capture capability in 
+Java, and fully support Windows, Mac OS X, and Linux. This library was created
+ because of the deficiencies of what is already out there:
+
+- JMF (Java Media Framework): Has not been updated in years, requires a 
+   separate install, only has builds for Windows, Solaris, and 32-bit Linux. 
+   No Mac OS, No 64-bit Linux.
+- Quicktime: Only supports Windows and Mac OS.
+- DirectShow: Only supports Windows, very complex, no Java mapping.
+- Video4Linux (V4L): Only supports Linux, Java mapping is GPL 
+  (non-commercial-friendly)
+None of the above frameworks is a single solution to the problem that CIVIL 
+attempts to address. However, CIVIL has various implementations, which layer 
+on top of Quicktime, DirectShow, and Video4Linux2, using either Java (QTJava) 
+or JNI (Video4Linux, DirectShow)
+
+CIVIL is implemented for various platforms as follows:
+
+- Windows: JNI/DirectShow
+- Linux: JNI/Video4Linux2. Video4Linux support2 is provided through a modified 
+  version of an existing open-source library, fglib.
+- Mac OS X: Quicktime for Java
+
+------------------------------------------------------------------------------
+Running the examples
+------------------------------------------------------------------------------
+
+In all cases, you need the appropriate CIVIL native library to be in your 
+library path.  In the case of Mac OS X, it uses Quicktime for Java, so there 
+is no native library.
+
+There are included shell/batch scripts to run most of the examples:
+- capturecontrol_swt: this is an SWT-based capture control.  Note that on Mac OS X
+  SWT can be a bit tricky, the swing capturecontrol is recommended.
+- capturecontrol: swing-based capture control.
+- webcam: runs a small web server, serving up images from your camera.
+
+Another useful example to run/examine is the class 
+com.lti.civil.test.CaptureSystemTest
+This has no GUI, simply connects to available cameras, tries a few of the
+available resolutions, and captures images to a JPEG file.
+
+------------------------------------------------------------------------------
+Platform-specific notes
+------------------------------------------------------------------------------
+
+Mac OS X
+
+Sample vm arguments to run CaptureControl:
+
+-Djava.library.path=/Users/ken/DevLibs/swt-3.1M6-macosx-carbon -Djava.awt.headless=true
+In particular, Quicktime can trigger the error that it can't start the AWT, 
+if we aren't headless.
+
+Note that SWT should not be in the classpath at all when running non-SWT 
+examples under Mac OS X.
+
+------------------------------------------------------------------------------
+Troubleshooting
+------------------------------------------------------------------------------
+
+com.lti.civil.CaptureException: quicktime.std.StdQTException[QTJava:6.1.6g],-9405=couldntGetRequiredComponent,QT.vers:7168000
+This seems to be the error you get when there is no camera attached.  Or, if 
+another program is using the camera.  You might want to check that you don't
+have any lingering lti-civil based program instances still running.
+
+------------------------------------------------------------------------------
+Building under Windows (native and Java)
+------------------------------------------------------------------------------
+use the ant build file (build.xml) to build.  
+First, you'll need to set some directories in build.xml to match your system:
+	<!-- location for output files: -->
+	<property name="LTIOut" location="C:\\LTIOut"/>	<!-- in case it is not defined -->
+
+	<!-- locations of SDKs: -->
+	<property name="directx.sdk" location="C:\\Program Files\\Microsoft DirectX 9.0 SDK (February 2005)" />
+	<property name="directshow.sdk" location="${directx.sdk}\\Extras\\DirectShow" />
+
+You'll also need the JDK variable defined in your ant properties to point to 
+the location of your JDK.
+
+Also, it assumes you have Visual Studio set up to allow command-line building 
+(your PATH has to have the c compiler, etc).
+
+I have my PATH set to Visual Studio 6, there may be some include files that 
+have to be tweaked to use 7.
+
+To build it from eclipse, you can right click on build.xml and choose run as 
+ant build.
+
+Running: you will need to set a VM argument so that CaptureSystemTest can find 
+the dll.  The easiest way to do this the first time is to right click on 
+CaptureSystemTest (in com.lti.civil.swt), choose Run as Java Application, 
+let it fail, go to Run..., go to Arguments, and in the
+VM Arguments box, paste: 
+-Djava.library.path=bin/win32/x86
+
+When I run, I get something like:
+Device ID 0: \\?\usb#vid_046d&pid_08b0&mi_00#6&3856684&0&0000#{65e8773d-8f56-11d0-a3b9-00a0c9223196}\global
+Description 0: Logitech QuickCam Pro 3000 (08B0)
+done.
+
+To run the CaptureControl (in com.lti.civil.swt), the procedure is the same for
+CaptureSystemTest, but in the VM arguments box, you'll need the 
+java.library.path to reflect both the path to the civil dll, and the path to 
+the SWT dlls.
+
+For example:
+
+-Djava.library.path="C:\DevLibsMin\swt-M20060921-0945-win32-win32-x86;bin/win32/x86"
+
+CIVIL requires the following user libraries to be set in Eclipse:
+
+SWT - SWT jar. Example: DevLibsMin/swt-M20060921-0945-win32-win32-x86/swt.jar
+QUICKTIME - either empty on the Mac (Quicktime is on the classpath by default), or 
+qtstubs.jar for other platforms, built from the qtstubs project, or a copy of the 
+Quicktime jar from the mac. Example: DevLibsMin/qtjava/QTJava.zip
+

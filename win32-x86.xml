@@ -1,0 +1,14 @@
+<assembly>
+  <!-- Dependent projects will use this id as the classifier to match this assembly -->
+  <id>win32-x86</id>
+  <formats>
+    <format>jar</format>
+  </formats>
+  <includeBaseDirectory>false</includeBaseDirectory>
+  <fileSets>
+    <fileSet>
+      <directory>bin/native/x86/windows</directory>
+      <outputDirectory>/</outputDirectory>
+    </fileSet>
+  </fileSets>
+</assembly>

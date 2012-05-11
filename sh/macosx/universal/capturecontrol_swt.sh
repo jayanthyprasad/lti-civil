@@ -1,0 +1,1 @@
+java -classpath lti-civil.jar:lib/swt-M20060921-0945-carbon-macosx/swt.jar -Djava.awt.headless=true -Djava.library.path="lib/swt-M20060921-0945-carbon-macosx" com.lti.civil.swt.CaptureControl

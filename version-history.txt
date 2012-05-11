@@ -1,0 +1,77 @@
+Version history for LTI-CIVIL.
+
+5/24/07 kenlars99 - change debug printout of direct show error codes from decimal to hex
+5/24/07 kenlars99 - fix QTJ capture problems by using new sample code from http://lists.apple.com/archives/QuickTime-java/2005/Nov/msg00036.html.
+
+5/25/07
+kenlars99 - add /dev/video0 thru /dev/video3 to v4l returned capture devices.
+
+Jun 18 2007
+kenlars99 - added dynamic linux capture device detection, up to /dev/video15
+kenlars99 - fixed major problem with not being able to open linux capture devices twice.
+
+Jun 19 2007 
+kenlars99 - switch to V4L2
+
+July 5 2007
+kenlars99 - attempt to dispose DirectShow filter graph properly
+
+July 6 2007
+kenlars99 - migrate to latest swtutils
+kenlars99 - require Java 1.5 to compile (use generics)
+kenlars99 - add jars lti-civil-noutils.jar and lti-civil-noswt.jar to build, for alternate deployments
+
+Release lti-civil-20070706-0545
+
+July 9 2007
+kenlars99 rename lti-civil-noswt.jar to lti-civil-no_s_w_t.jar because Mac OS X thinks SWT is active if swt is in the classpath at all as a string. 
+
+July 10 2007
+kenlars99 fixed JVM crash on linux after opening the same capture device a number of times, cleaned up a few things in the process
+
+July 11 2007
+kenlars99 better exception handling if CaptureObserver called from native thread throws an exception.  It used to crash the JVM, now it logs.
+
+Release lti-civil-20070711-1255
+
+Aug 30 2007
+add some support for querying and setting image size
+fix rgb problem on mac os x.
+
+Aug 31 2007
+add swing-based capture control
+better quicktime disposal
+cleanup build and release
+
+Sep 11 2007
+kenlars99 added timestamp to Images.
+
+Sep 14 2007 
+kenlars99 improve image conversions to avoid copying data, especially with Quicktime.
+
+Release lti-civil-20070914-1213
+
+Sep 19 2007
+kenlars99 get start after stop working for directshow capture
+
+Sep 20 2007
+kenlars99 get Mac OSX capture working on PPC. 
+
+Release lti-civil-20070920-1721
+
+Oct 19 2007
+kenlars99 include directshow error codes in exceptions
+
+Nov 9 2007
+kenlars99 avoid classloader problems by getting Java classes in native code called from Java, not from a native thread.
+
+Jan 17 2008
+builds now on ubuntu gutsy gibbon
+multiple cams works now under linux
+
+Oct 13 2008
+Damian Minkov - add retries to quicktime SGVideoChannel initialization.
+
+Mar 25 2011
+kenlars99 - remove references to internal sun image classes
+apply patch "Video4Linux2 YUYV format and bug correction" - ID: 1888139 by Sylvain RIBEYRON ( sribeyron )

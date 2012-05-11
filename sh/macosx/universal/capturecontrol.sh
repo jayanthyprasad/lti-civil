@@ -1,0 +1,1 @@
+java -classpath lti-civil-no_s_w_t.jar com.lti.civil.swing.CaptureFrame

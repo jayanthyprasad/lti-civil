@@ -1,0 +1,1 @@
+java -classpath lti-civil.jar;lib/swt-M20060921-0945-win32-win32-x86/swt.jar -Djava.library.path="native/win32-x86:lib/swt-M20060921-0945-win32-win32-x86" com.lti.civil.swt.CaptureControl

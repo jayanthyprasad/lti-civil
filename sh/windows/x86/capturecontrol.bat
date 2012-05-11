@@ -1,0 +1,1 @@
+java -classpath lti-civil-no_s_w_t.jar -Djava.library.path="native/win32-x86" com.lti.civil.swing.CaptureFrame

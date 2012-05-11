@@ -1,13 +1,13 @@
-#include "stdafx.h"
 #include "DSCaptureSystem.h"
-
+#include <WinError.h>
+#include "stdafx.h"
 #include <dshow.h>
 #include <Qedit.h>	// for ISampleGrabber
-
 #include "VideoFormat.h"
 #include "DSCaptureException.h"
 #include "DSCaptureStream.h"
 #include "DSCaptureInfo.h"
+
 
 DWORD g_dwGraphRegister=0;
 HRESULT AddGraphToRot(
@@ -81,6 +81,33 @@ const wchar_t * GetPhysicalPinName(long lType)
     }
 }
 
+char* ErrorDescription(HRESULT hr)
+{
+     if(FACILITY_WINDOWS == HRESULT_FACILITY(hr))
+     {
+    	 hr = HRESULT_CODE(hr);
+     }
+     TCHAR* szErrMsg;
+
+     char msg[256];
+
+     int code = FormatMessage(
+    	       FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM,
+    	       NULL, hr, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+    	       (LPTSTR)&szErrMsg, 0, NULL);
+     if(code != 0)
+     {
+    	 StringCchPrintfA(msg, 256, TEXT("%s"), szErrMsg);
+         LocalFree(szErrMsg);
+     }
+     else
+     {
+    	 StringCchPrintfA(msg, 256, TEXT("[Could not find a description for error # %#x.]\n"), hr);
+     }
+
+     return msg;
+}
+
 /** @return List of {@link CaptureDeviceInfo} */
 void DSCaptureSystem::getCaptureDeviceInfoList(list<CaptureDeviceInfo> &result) /*throws CaptureException*/
 {
@@ -102,7 +129,9 @@ void DSCaptureSystem::getCaptureDeviceInfoList(list<CaptureDeviceInfo> &result) 
 	}
 	else
 	{
-		DSCaptureException::FailWithException("CoCreateInstance Failed.", hr);
+		char msg[512] = "CoCreateInstance Failed: ";
+		StringCchCatA(msg, 512, ErrorDescription(hr));
+		DSCaptureException::FailWithException(msg, hr);
 	}
 
 	if (!pEnum)

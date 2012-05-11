@@ -14,20 +14,7 @@
 	<property name="cpp.linux.amd64.out" location="build/cpp.linux.amd64" />
 	<property name="cpp.macos.ppc.out" location="build/cpp.macos.ppc" />
 
-	<!-- needed for building DLL on Windows: -->
-	<property name="directx.sdk" location="C:\\Program Files\\Microsoft DirectX 9.0 SDK (February 2005)" />	<!-- Tailor to your system -->
-	<property name="directshow.sdk" location="${directx.sdk}\\Extras\\DirectShow" />
-	<property name="VC7.home" location="C:/Program Files/Microsoft Visual Studio 10.0/VC" /> <!-- Tailor to your system -->
-
-	<!-- Tailor to your system -->
-	<!-- needed for building DLL/so on Windows/Linux: -->
-	<property name="java.sdk" location="/usr/lib/jvm/java-6-openjdk" />
-	<!--
-	<property name="java.sdk" location="C:\\Program Files\\Java\\jdk1.6.0_20" />
-	-->	
-
-	<!-- needed for compiling QTJ implementation (all platforms, although it would only work under Mac OS X or possibly Windows with QTJ installed): -->
-	<property name="quicktime.jar" location="lib/QTJava.zip" /> 
+	<property file="build.properties" />
 
 	<target name="all" depends="clean,javac,javadoc,jar" />
 
@@ -287,17 +274,18 @@
 	<!-- directshow dll -->
 	<target name="compile-dll">
 			<mkdir dir="${cpp.out}" />
-			<exec dir="${cpp.out}" executable="clexec.bat" failonerror="true" >
+			<exec dir="${cpp.out}" executable="${VC7.home}/bin/cl.exe" failonerror="true" output="build.log" append="true" >
 				<arg line="/LD" />
 				<arg line="/GX" />
 				<arg line="/O2" />
 				<arg line="/ML" />
 				<arg line="/EHsc" />
 				<arg line="/o ${project.name}.dll" />
-				<arg line="/I "/><arg path="${java.sdk}/include" />
-				<arg line="/I "/><arg path="${java.sdk}/include/win32" />
-				<arg line="/I "/><arg path="${directshow.sdk}/include" />
-				<arg line="/I "/><arg path="${directx.sdk}/include" />
+				<arg line="/I "/><arg value="${java.sdk}\\include" />
+				<arg line="/I "/><arg value="${java.sdk}\\include\\win32" />
+				<arg line="/I "/><arg value="${directshow.sdk}/include" />
+                <arg line="/I "/><arg value="${directx.sdk}/include" />
+                <arg line="/I "/><arg value="${directshow.sdk.legacy}/include" />
 				<arg line="-I "/><arg path="native/src/common" />
 				<arg path="native/src/common/civil.cpp" />
 				<arg path="native/src/common/JNICaptureObserver.cpp" />
@@ -307,11 +295,11 @@
 				<arg path="native/src/directshow/DSCaptureStream.cpp" />
 				<arg path="native/src/directshow/DSCaptureSystemFactory.cpp" />
 
-				<arg path="${directshow.sdk}/Lib/x86/quartz.lib" />
-				<arg path="${directshow.sdk}/Lib/x86/strmiids.lib" />
-				<arg line="ole32.lib" />
-				<arg line="user32.lib" />
-				<arg line="oleaut32.lib" />
+				<arg value="${directshow.sdk}/Lib/quartz.lib" />
+				<arg value="${directshow.sdk}/Lib/strmiids.lib" />
+				<arg value="${directshow.sdk}/Lib/ole32.lib" />
+				<arg value="${directshow.sdk}/Lib/user32.lib" />
+				<arg value="${directshow.sdk}/Lib/oleaut32.lib" />
 				<!--<arg path="${VC7.home}/atlmfc/lib/nafxcw.lib" /> -->
 				<!--<arg path="${VC7.home}/lib/libcmt.lib" /> -->
 

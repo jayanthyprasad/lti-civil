@@ -2,3 +2,4 @@ CVS
 *.class
 build/
 *.log
+target/

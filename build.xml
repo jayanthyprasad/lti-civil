@@ -83,7 +83,8 @@
 				<exclude name="com/lti/utils/**"/>
 				<exclude name="com/lti/swtutils/**"/>
 				<exclude name="org/**"/>
-			</fileset>
+                <exclude name="quicktime/**"/>
+		    </fileset>
 			<fileset dir="bin/" >
 		    </fileset>
 		</jar>
@@ -93,6 +94,7 @@
 				<exclude name="com/lti/swtutils/**"/>
 				<exclude name="org/**"/>
 				<exclude name="com/lti/civil/swt/**"/>
+                <exclude name="quicktime/**"/>
 			</fileset>
 			<fileset dir="bin/" >
 			</fileset>

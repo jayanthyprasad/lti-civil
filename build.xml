@@ -67,7 +67,7 @@
 		</copy>
 	</target>
 
-	<target name="jar">
+	<target name="jar" depends="javac">
 		<mkdir dir="${jar.out}" />
 		<!-- full Jar with everything -->
 		<jar jarfile="${jar.out}/lti-civil.jar">
